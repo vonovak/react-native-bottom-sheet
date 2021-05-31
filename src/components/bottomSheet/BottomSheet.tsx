@@ -579,7 +579,7 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
     //#endregion
 
     //#region gesture interaction hooks
-    const [contentPanGestureHandler, contentPanGestureState] =
+    const [contentPanGestureHandler, contentPanGestureState, gestureTranslationY] =
       useInteractivePanGestureHandler({
         type: GESTURE.CONTENT,
         enableOverDrag,
@@ -843,6 +843,7 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
         getKeyboardHeightInContainer,
         setScrollableRef: handleSettingScrollableRef,
         removeScrollableRef,
+        gestureTranslationY
       }),
       [
         animatedIndex,
@@ -870,6 +871,7 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
         _providedActiveOffsetY,
         _providedFailOffsetX,
         _providedFailOffsetY,
+        gestureTranslationY
       ]
     );
     const externalContextVariables = useMemo(
@@ -1173,7 +1175,7 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
     // render
     print({
       component: BottomSheet.name,
-      method: 'render',
+      method: 'render2',
       params: {
         topInset,
         bottomInset,

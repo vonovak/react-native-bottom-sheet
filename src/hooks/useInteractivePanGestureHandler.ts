@@ -1,22 +1,8 @@
-import { Keyboard, Platform } from 'react-native';
-import Animated, {
-  useAnimatedGestureHandler,
-  useSharedValue,
-  cancelAnimation,
-  runOnJS,
-} from 'react-native-reanimated';
-import {
-  State,
-  PanGestureHandlerGestureEvent,
-} from 'react-native-gesture-handler';
-import { clamp, snapPoint } from 'react-native-redash';
-import {
-  GESTURE,
-  KEYBOARD_BEHAVIOR,
-  KEYBOARD_DISMISS_THRESHOLD,
-  KEYBOARD_STATE,
-  WINDOW_HEIGHT,
-} from '../constants';
+import { Keyboard, Platform } from "react-native";
+import Animated, { cancelAnimation, runOnJS, useAnimatedGestureHandler, useSharedValue } from "react-native-reanimated";
+import { PanGestureHandlerGestureEvent, State } from "react-native-gesture-handler";
+import { clamp, snapPoint } from "react-native-redash";
+import { GESTURE, KEYBOARD_BEHAVIOR, KEYBOARD_DISMISS_THRESHOLD, KEYBOARD_STATE, WINDOW_HEIGHT } from "../constants";
 
 export interface useInteractivePanGestureHandlerConfigs {
   type: GESTURE;
@@ -95,6 +81,9 @@ export const useInteractivePanGestureHandler = ({
 
       let highestSnapPoint =
         animatedSnapPoints.value[animatedSnapPoints.value.length - 1];
+      const secondHighestSnapPoint =
+        animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
+      console.log({secondHighestSnapPoint});
       /**
        * if keyboard is shown, then we set the highest point to the current
        * position which includes the keyboard height.
@@ -143,6 +132,7 @@ export const useInteractivePanGestureHandler = ({
        * this will insure locking sheet position when user is scrolling the scrollable until,
        * they reach to the top of the scrollable.
        */
+      const isDraggingDown = translationY > 0
       const accumulatedDraggedPosition =
         draggedPosition + negativeScrollableContentOffset;
 
@@ -150,20 +140,48 @@ export const useInteractivePanGestureHandler = ({
        * a clamped value of the accumulated dragged position, to insure keeping the dragged
        * position between the highest and lowest snap points.
        */
-      const clampedPosition = clamp(
-        accumulatedDraggedPosition,
-        highestSnapPoint,
-        lowestSnapPoint
-      );
+      const isDraggingDownFromTop = (isDraggingDown && context.startPosition === 0)
+      const isDraggingDownFromMiddle = (isDraggingDown && context.startPosition === secondHighestSnapPoint)
+
+
+      // console.log('context.startPosition', isDraggingUpFromMiddle, context.startPosition)
+      const clampedPosition = (()=>{
+        if (type === GESTURE.CONTENT) {
+          const clampSource = (()=>{
+            if (isDraggingDownFromTop) {
+              const res = Math.min(draggedPosition, secondHighestSnapPoint)
+              console.log(res);
+              return res
+            } else if (isDraggingDownFromMiddle) {
+              return secondHighestSnapPoint
+            }
+            return accumulatedDraggedPosition
+          })()
+          return clamp(
+            clampSource,
+            // accumulatedDraggedPosition,
+            // draggedPosition,
+            highestSnapPoint,
+            lowestSnapPoint
+          )
+        } else {
+          return clamp(
+            accumulatedDraggedPosition,
+            highestSnapPoint,
+            lowestSnapPoint
+          )
+        }
+      })()
 
       /**
        * if scrollable position is locked and the animated position
        * reaches the highest point, then we unlock the scrollable position.
        */
+      // console.log('secondHighestSnapPoint', {secondHighestSnapPoint, animatedPosition: animatedPosition.value})
       if (
         context.isScrollablePositionLocked &&
         type === GESTURE.CONTENT &&
-        animatedPosition.value === highestSnapPoint
+        (animatedPosition.value === highestSnapPoint)
       ) {
         context.isScrollablePositionLocked = false;
       }
@@ -206,6 +224,7 @@ export const useInteractivePanGestureHandler = ({
         }
 
         if (
+          false &&
           type === GESTURE.CONTENT &&
           draggedPosition + negativeScrollableContentOffset > lowestSnapPoint
         ) {
@@ -225,7 +244,7 @@ export const useInteractivePanGestureHandler = ({
 
       animatedPosition.value = clampedPosition;
     },
-    onEnd: ({ state }, context) => {
+    onEnd: ({ state, translationY }, context) => {
       gestureState.value = state;
 
       /**
@@ -272,11 +291,21 @@ export const useInteractivePanGestureHandler = ({
       /**
        * calculate the destination point, using redash.
        */
-      const destinationPoint = snapPoint(
-        gestureTranslationY.value + context.startPosition,
-        gestureVelocityY.value,
-        snapPoints
-      );
+      const isDraggingDown = translationY > 0
+
+      const destinationPoint = (() => {
+        const endingSnapPoint = snapPoint(
+          gestureTranslationY.value + context.startPosition,
+          gestureVelocityY.value,
+          snapPoints
+        )
+        if (type === GESTURE.HANDLE) {
+          return endingSnapPoint
+        }
+        const secondHighestSnapPoint =
+          animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
+        return isDraggingDown ? Math.min(secondHighestSnapPoint, endingSnapPoint) : endingSnapPoint
+      })()
 
       /**
        * if destination point is the same as the current position,
