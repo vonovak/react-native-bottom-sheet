@@ -141,6 +141,7 @@ export const useInteractivePanGestureHandler = ({
         animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
       const isDraggingDownFromTop = (isDraggingDown && context.startPosition === 0)
       const isDraggingDownFromMiddle = (isDraggingDown && context.startPosition === secondHighestSnapPoint)
+      const isDraggingDownFromBetweenTopAndMiddle = (isDraggingDown && context.startPosition <= secondHighestSnapPoint && context.startPosition > 0)
 
 
       // console.log('context.startPosition', isDraggingUpFromMiddle, context.startPosition)
@@ -156,6 +157,8 @@ export const useInteractivePanGestureHandler = ({
               return res
             } else if (isDraggingDownFromMiddle) {
               return secondHighestSnapPoint
+            } else if (isDraggingDownFromBetweenTopAndMiddle) {
+              return Math.min(accumulatedDraggedPosition, secondHighestSnapPoint)
             }
             return accumulatedDraggedPosition
           })()
