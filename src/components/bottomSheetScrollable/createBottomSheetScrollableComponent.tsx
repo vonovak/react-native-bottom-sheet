@@ -30,7 +30,6 @@ export function createBottomSheetScrollableComponent<T, P>(
     //#region hooks
     const {
       scrollableRef,
-      scrollableAnimatedProps,
       handleScrollEvent,
       handleSettingScrollable,
     } = useScrollableInternal();
@@ -76,7 +75,6 @@ export function createBottomSheetScrollableComponent<T, P>(
             scrollEventThrottle={16}
             onScroll={handleScrollEvent}
             onScrollBeginDrag={handleScrollEvent}
-            // animatedProps={scrollableAnimatedProps}
             style={containerStyle}
           />
         </NativeViewGestureHandler>

@@ -21,7 +21,7 @@ type HandleScrollEventContextType = {
   initialContentOffsetY: number;
   startedIndex: number;
   shouldMaintainInitialPosition: boolean;
-  isDraggingDownFromMiddle: boolean;
+  didStartAtMiddle: boolean;
 };
 
 export const useScrollableInternal = () => {
@@ -74,9 +74,10 @@ export const useScrollableInternal = () => {
       },
       onScroll: (_, context) => {
         const isDraggingDown = gestureTranslationY.value > 0
-        const isDraggingDownFromMiddle = (isDraggingDown && context.startedIndex === 1)
+        const didStartAtMiddle = context.startedIndex === 1
+        const isDraggingDownFromMiddle = (isDraggingDown && didStartAtMiddle)
         const isDraggingDownFromTop = (isDraggingDown && context.startedIndex === 2)
-        context.isDraggingDownFromMiddle = isDraggingDownFromMiddle
+        context.didStartAtMiddle = didStartAtMiddle
 
         /**
          * if sheet position is extended or fill parent, then we reset
@@ -88,7 +89,7 @@ export const useScrollableInternal = () => {
         ) {
           context.shouldMaintainInitialPosition = false;
         }
-        if (isDraggingDownFromMiddle) {
+        if (didStartAtMiddle) {
           return
         }
 
@@ -107,8 +108,8 @@ export const useScrollableInternal = () => {
         }
       },
       onEndDrag: ({ contentOffset: { y } }: NativeScrollEvent, context) => {
-        const {isDraggingDownFromMiddle}=context
-        if (isDraggingDownFromMiddle) {
+        const {didStartAtMiddle}=context
+        if (didStartAtMiddle) {
           // console.log({isDraggingDownFromMiddle});
           return
         }
@@ -128,7 +129,7 @@ export const useScrollableInternal = () => {
         }
       },
       onMomentumEnd: ({ contentOffset: { y } }: NativeScrollEvent, context) => {
-        if (context.isDraggingDownFromMiddle) {
+        if (context.didStartAtMiddle) {
           return
         }
         if (animatedScrollableState.value === SCROLLABLE_STATE.LOCKED) {

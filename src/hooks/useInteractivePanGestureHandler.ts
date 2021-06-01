@@ -81,9 +81,6 @@ export const useInteractivePanGestureHandler = ({
 
       let highestSnapPoint =
         animatedSnapPoints.value[animatedSnapPoints.value.length - 1];
-      const secondHighestSnapPoint =
-        animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
-      console.log({secondHighestSnapPoint});
       /**
        * if keyboard is shown, then we set the highest point to the current
        * position which includes the keyboard height.
@@ -140,6 +137,8 @@ export const useInteractivePanGestureHandler = ({
        * a clamped value of the accumulated dragged position, to insure keeping the dragged
        * position between the highest and lowest snap points.
        */
+      const secondHighestSnapPoint =
+        animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
       const isDraggingDownFromTop = (isDraggingDown && context.startPosition === 0)
       const isDraggingDownFromMiddle = (isDraggingDown && context.startPosition === secondHighestSnapPoint)
 
@@ -148,9 +147,12 @@ export const useInteractivePanGestureHandler = ({
       const clampedPosition = (()=>{
         if (type === GESTURE.CONTENT) {
           const clampSource = (()=>{
+            if (isDraggingDownFromMiddle && context.isScrollablePositionLocked === false) {
+              // prevents handle jump when you start from middle and scroll up and down in one long drag
+              return accumulatedDraggedPosition
+            }
             if (isDraggingDownFromTop) {
               const res = Math.min(draggedPosition, secondHighestSnapPoint)
-              console.log(res);
               return res
             } else if (isDraggingDownFromMiddle) {
               return secondHighestSnapPoint
@@ -159,8 +161,6 @@ export const useInteractivePanGestureHandler = ({
           })()
           return clamp(
             clampSource,
-            // accumulatedDraggedPosition,
-            // draggedPosition,
             highestSnapPoint,
             lowestSnapPoint
           )
