@@ -75,7 +75,8 @@ export function createBottomSheetScrollableComponent<T, P>(
             overScrollMode={overScrollMode}
             scrollEventThrottle={16}
             onScroll={handleScrollEvent}
-            animatedProps={scrollableAnimatedProps}
+            onScrollBeginDrag={handleScrollEvent}
+            // animatedProps={scrollableAnimatedProps}
             style={containerStyle}
           />
         </NativeViewGestureHandler>
