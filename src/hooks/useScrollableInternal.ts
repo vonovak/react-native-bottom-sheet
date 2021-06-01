@@ -39,7 +39,8 @@ export const useScrollableInternal = () => {
     setScrollableRef,
     removeScrollableRef,
     animatedIndex,
-    gestureTranslationY
+    gestureTranslationY,
+    animatedSnapPoints
   } = useBottomSheetInternal();
 
   // variables
@@ -93,13 +94,14 @@ export const useScrollableInternal = () => {
           return
         }
 
-
+        const secondHighestSnapPoint =
+          animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
         if (animatedScrollableState.value === SCROLLABLE_STATE.LOCKED) {
           let lockPosition = context.shouldMaintainInitialPosition
             ? context.initialContentOffsetY ?? 0
             : 0;
-          if (isDraggingDownFromTop && gestureTranslationY.value > 154) {
-            // lockPosition -= (gestureTranslationY.value)
+          if (isDraggingDownFromTop && gestureTranslationY.value > secondHighestSnapPoint) {
+            lockPosition -= (gestureTranslationY.value - secondHighestSnapPoint)
           }
           // @ts-ignore
           scrollTo(scrollableRef, 0, lockPosition, false);
@@ -110,7 +112,6 @@ export const useScrollableInternal = () => {
       onEndDrag: ({ contentOffset: { y } }: NativeScrollEvent, context) => {
         const {didStartAtMiddle}=context
         if (didStartAtMiddle) {
-          // console.log({isDraggingDownFromMiddle});
           return
         }
         if (animatedScrollableState.value === SCROLLABLE_STATE.LOCKED) {
@@ -119,7 +120,6 @@ export const useScrollableInternal = () => {
             : 0;
           // @ts-ignore
           scrollTo(scrollableRef, 0, lockPosition, false);
-          // console.log('onEndDrag');
           scrollableContentOffsetY.value = lockPosition;
           return;
         }

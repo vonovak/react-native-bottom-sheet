@@ -42,6 +42,7 @@ export interface BottomSheetInternalContextType
   scrollableContentOffsetY: Animated.SharedValue<number>;
   shouldHandleKeyboardEvents: Animated.SharedValue<boolean>;
   gestureTranslationY: Animated.SharedValue<number>;
+  animatedSnapPoints: Animated.SharedValue<number[]>;
 
   // methods
   getKeyboardHeightInContainer: () => number;

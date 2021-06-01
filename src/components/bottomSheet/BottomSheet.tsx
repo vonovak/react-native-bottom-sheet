@@ -843,7 +843,8 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
         getKeyboardHeightInContainer,
         setScrollableRef: handleSettingScrollableRef,
         removeScrollableRef,
-        gestureTranslationY
+        gestureTranslationY,
+        animatedSnapPoints
       }),
       [
         animatedIndex,
@@ -871,7 +872,8 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
         _providedActiveOffsetY,
         _providedFailOffsetX,
         _providedFailOffsetY,
-        gestureTranslationY
+        gestureTranslationY,
+        animatedSnapPoints
       ]
     );
     const externalContextVariables = useMemo(
