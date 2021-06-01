@@ -14,13 +14,12 @@ import {
   ANIMATION_STATE,
   SCROLLABLE_DECELERATION_RATE_MAPPER,
   SCROLLABLE_STATE,
-  SHEET_STATE,
+  // SHEET_STATE,
 } from '../constants';
 
 type HandleScrollEventContextType = {
   initialContentOffsetY: number;
   startedIndex: number;
-  shouldMaintainInitialPosition: boolean;
   didStartAtMiddle: boolean;
 };
 
@@ -32,7 +31,7 @@ export const useScrollableInternal = () => {
   // hooks
   const {
     // animatedPosition -- derives --> animatedSheetState (+animatedAnimationState) -- derives --> animatedScrollableState
-    animatedSheetState,
+    // animatedSheetState,
     animatedScrollableState,
     animatedAnimationState,
     scrollableContentOffsetY: _rootScrollableContentOffsetY,
@@ -57,21 +56,6 @@ export const useScrollableInternal = () => {
         _rootScrollableContentOffsetY.value = y;
         context.initialContentOffsetY = y;
         context.startedIndex = animatedIndex.value
-
-        /**
-         * if sheet position not extended or fill parent and the scrollable position
-         * not at the top, then we should lock the initial scrollable position.
-         */
-        if (
-          // animatedSheetState.value !== SHEET_STATE.EXTENDED &&
-          // otherwise jumps to 0
-          animatedSheetState.value !== SHEET_STATE.FILL_PARENT &&
-          y > 0
-        ) {
-          context.shouldMaintainInitialPosition = true;
-        } else {
-          context.shouldMaintainInitialPosition = false;
-        }
       },
       onScroll: (_, context) => {
         const isDraggingDown = gestureTranslationY.value > 0
@@ -80,26 +64,14 @@ export const useScrollableInternal = () => {
         const isDraggingDownFromTop = (isDraggingDown && context.startedIndex === 2)
         context.didStartAtMiddle = didStartAtMiddle
 
-        /**
-         * if sheet position is extended or fill parent, then we reset
-         * `shouldLockInitialPosition` value to false.
-         */
-        if (
-          // animatedSheetState.value === SHEET_STATE.EXTENDED ||
-          animatedSheetState.value === SHEET_STATE.FILL_PARENT || isDraggingDownFromMiddle
-        ) {
-          context.shouldMaintainInitialPosition = false;
-        }
-        if (didStartAtMiddle) {
+        if (isDraggingDownFromMiddle) {
           return
         }
 
         const secondHighestSnapPoint =
           animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
         if (animatedScrollableState.value === SCROLLABLE_STATE.LOCKED) {
-          let lockPosition = context.shouldMaintainInitialPosition
-            ? context.initialContentOffsetY ?? 0
-            : 0;
+          let lockPosition = context.initialContentOffsetY ?? 0
           if (isDraggingDownFromTop && gestureTranslationY.value > secondHighestSnapPoint) {
             lockPosition -= (gestureTranslationY.value - secondHighestSnapPoint)
           }
@@ -115,9 +87,7 @@ export const useScrollableInternal = () => {
           return
         }
         if (animatedScrollableState.value === SCROLLABLE_STATE.LOCKED) {
-          const lockPosition = context.shouldMaintainInitialPosition
-            ? context.initialContentOffsetY ?? 0
-            : 0;
+          const lockPosition = context.initialContentOffsetY ?? 0
           // @ts-ignore
           scrollTo(scrollableRef, 0, lockPosition, false);
           scrollableContentOffsetY.value = lockPosition;
@@ -133,9 +103,7 @@ export const useScrollableInternal = () => {
           return
         }
         if (animatedScrollableState.value === SCROLLABLE_STATE.LOCKED) {
-          const lockPosition = context.shouldMaintainInitialPosition
-            ? context.initialContentOffsetY ?? 0
-            : 0;
+          const lockPosition = context.initialContentOffsetY ?? 0
           // @ts-ignore
           scrollTo(scrollableRef, 0, lockPosition, false);
           scrollableContentOffsetY.value = 0;
