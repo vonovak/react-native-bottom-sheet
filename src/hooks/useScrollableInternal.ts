@@ -64,17 +64,16 @@ export const useScrollableInternal = () => {
         const isDraggingDownFromTop = (isDraggingDown && context.startedIndex === 2)
         context.didStartAtMiddle = didStartAtMiddle
 
-        if (isDraggingDownFromMiddle) {
+        const secondHighestSnapPoint =
+          animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
+        const didDragBelowSecondSnapPoint = gestureTranslationY.value > secondHighestSnapPoint
+
+        if (isDraggingDownFromMiddle || (isDraggingDownFromTop && didDragBelowSecondSnapPoint)) {
           return
         }
 
-        const secondHighestSnapPoint =
-          animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
         if (animatedScrollableState.value === SCROLLABLE_STATE.LOCKED) {
-          let lockPosition = context.initialContentOffsetY ?? 0
-          if (isDraggingDownFromTop && gestureTranslationY.value > secondHighestSnapPoint) {
-            lockPosition -= (gestureTranslationY.value - secondHighestSnapPoint)
-          }
+          const lockPosition = context.initialContentOffsetY ?? 0
           // @ts-ignore
           scrollTo(scrollableRef, 0, lockPosition, false);
           scrollableContentOffsetY.value = lockPosition;
@@ -83,7 +82,12 @@ export const useScrollableInternal = () => {
       },
       onEndDrag: ({ contentOffset: { y } }: NativeScrollEvent, context) => {
         const {didStartAtMiddle}=context
-        if (didStartAtMiddle) {
+        const isDraggingDown = gestureTranslationY.value > 0
+        const isDraggingDownFromTop = (isDraggingDown && context.startedIndex === 2)
+        const secondHighestSnapPoint =
+          animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
+        const didDragBelowSecondSnapPoint = gestureTranslationY.value > secondHighestSnapPoint
+        if (didStartAtMiddle || (isDraggingDownFromTop && didDragBelowSecondSnapPoint)) {
           return
         }
         if (animatedScrollableState.value === SCROLLABLE_STATE.LOCKED) {
@@ -99,7 +103,13 @@ export const useScrollableInternal = () => {
         }
       },
       onMomentumEnd: ({ contentOffset: { y } }: NativeScrollEvent, context) => {
-        if (context.didStartAtMiddle) {
+        const isDraggingDown = gestureTranslationY.value > 0
+        const isDraggingDownFromTop = (isDraggingDown && context.startedIndex === 2)
+        const secondHighestSnapPoint =
+          animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
+        const didDragBelowSecondSnapPoint = gestureTranslationY.value > secondHighestSnapPoint
+
+        if (context.didStartAtMiddle || (isDraggingDownFromTop && didDragBelowSecondSnapPoint)) {
           return
         }
         if (animatedScrollableState.value === SCROLLABLE_STATE.LOCKED) {
