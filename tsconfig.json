@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@gorhom/bottom-sheet": ["./src/index"]
+      "@gorhom/bottom-sheet-custom-fork": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
