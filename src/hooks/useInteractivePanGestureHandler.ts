@@ -143,7 +143,6 @@ export const useInteractivePanGestureHandler = ({
        * this will insure locking sheet position when user is scrolling the scrollable until,
        * they reach to the top of the scrollable.
        */
-      const isDraggingDown = translationY > 0;
       const accumulatedDraggedPosition =
         draggedPosition + negativeScrollableContentOffset;
 
@@ -153,38 +152,15 @@ export const useInteractivePanGestureHandler = ({
        */
       const secondHighestSnapPoint =
         animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
-      const isDraggingDownFromTop =
-        isDraggingDown && context.startPosition === 0;
-      const isDraggingDownFromMiddle =
-        isDraggingDown && context.startPosition === secondHighestSnapPoint;
-      const isDraggingDownFromBetweenTopAndMiddle =
-        isDraggingDown &&
-        context.startPosition <= secondHighestSnapPoint &&
-        context.startPosition > 0;
+      const isDraggingFromBottom = context.startPosition !== 0 && context.startPosition !== secondHighestSnapPoint
 
-      // console.log('context.startPosition', isDraggingUpFromMiddle, context.startPosition)
       const clampedPosition = (() => {
         if (type === GESTURE.CONTENT) {
           const clampSource = (() => {
-            if (
-              isDraggingDownFromMiddle &&
-              context.isScrollablePositionLocked === false
-            ) {
-              // prevents handle jump when you start from middle and scroll up and down in one long drag
-              return accumulatedDraggedPosition;
+            if (isDraggingFromBottom) {
+              return accumulatedDraggedPosition
             }
-            if (isDraggingDownFromTop) {
-              const res = Math.min(draggedPosition, secondHighestSnapPoint);
-              return res;
-            } else if (isDraggingDownFromMiddle) {
-              return secondHighestSnapPoint;
-            } else if (isDraggingDownFromBetweenTopAndMiddle) {
-              return Math.min(
-                accumulatedDraggedPosition,
-                secondHighestSnapPoint
-              );
-            }
-            return accumulatedDraggedPosition;
+            return Math.min(draggedPosition, secondHighestSnapPoint);
           })();
           return clamp(clampSource, highestSnapPoint, lowestSnapPoint);
         } else {
@@ -200,7 +176,6 @@ export const useInteractivePanGestureHandler = ({
        * if scrollable position is locked and the animated position
        * reaches the highest point, then we unlock the scrollable position.
        */
-      // console.log('secondHighestSnapPoint', {secondHighestSnapPoint, animatedPosition: animatedPosition.value})
       if (
         context.isScrollablePositionLocked &&
         type === GESTURE.CONTENT &&
