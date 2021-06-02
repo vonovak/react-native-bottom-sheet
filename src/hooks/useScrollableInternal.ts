@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { findNodeHandle, NativeScrollEvent } from 'react-native';
-import {
+import Animated, {
   useAnimatedRef,
   useAnimatedScrollHandler,
   useSharedValue,
@@ -20,8 +20,36 @@ import {
 type HandleScrollEventContextType = {
   initialContentOffsetY: number;
   startedIndex: number;
-  didStartAtMiddle: boolean;
 };
+
+type GetMetadataParams = {
+  context: HandleScrollEventContextType;
+  gestureTranslationY: Animated.SharedValue<number>;
+  animatedSnapPoints: Animated.SharedValue<number[]>;
+};
+
+function getScrollMetadata({
+  gestureTranslationY,
+  animatedSnapPoints,
+  context,
+}: GetMetadataParams) {
+  'worklet';
+  const isDraggingDown = gestureTranslationY.value > 0;
+  const didStartAtMiddle = context.startedIndex === 1;
+  const isDraggingDownFromMiddle = isDraggingDown && didStartAtMiddle;
+  const isDraggingDownFromTop = isDraggingDown && context.startedIndex === 2;
+  const secondHighestSnapPoint =
+    animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
+  const didDragBelowSecondSnapPoint =
+    gestureTranslationY.value > secondHighestSnapPoint;
+
+  return {
+    isDraggingDownFromMiddle,
+    isDraggingDownFromTop,
+    didStartAtMiddle,
+    didDragBelowSecondSnapPoint,
+  };
+}
 
 export const useScrollableInternal = () => {
   // refs
@@ -39,7 +67,7 @@ export const useScrollableInternal = () => {
     removeScrollableRef,
     animatedIndex,
     gestureTranslationY,
-    animatedSnapPoints
+    animatedSnapPoints,
   } = useBottomSheetInternal();
 
   // variables
@@ -55,25 +83,28 @@ export const useScrollableInternal = () => {
         scrollableContentOffsetY.value = y;
         _rootScrollableContentOffsetY.value = y;
         context.initialContentOffsetY = y;
-        context.startedIndex = animatedIndex.value
+        context.startedIndex = animatedIndex.value;
       },
       onScroll: (_, context) => {
-        const isDraggingDown = gestureTranslationY.value > 0
-        const didStartAtMiddle = context.startedIndex === 1
-        const isDraggingDownFromMiddle = (isDraggingDown && didStartAtMiddle)
-        const isDraggingDownFromTop = (isDraggingDown && context.startedIndex === 2)
-        context.didStartAtMiddle = didStartAtMiddle
+        const {
+          didDragBelowSecondSnapPoint,
+          isDraggingDownFromMiddle,
+          isDraggingDownFromTop,
+        } = getScrollMetadata({
+          context,
+          animatedSnapPoints,
+          gestureTranslationY,
+        });
 
-        const secondHighestSnapPoint =
-          animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
-        const didDragBelowSecondSnapPoint = gestureTranslationY.value > secondHighestSnapPoint
-
-        if (isDraggingDownFromMiddle || (isDraggingDownFromTop && didDragBelowSecondSnapPoint)) {
-          return
+        if (
+          isDraggingDownFromMiddle ||
+          (isDraggingDownFromTop && didDragBelowSecondSnapPoint)
+        ) {
+          return;
         }
 
         if (animatedScrollableState.value === SCROLLABLE_STATE.LOCKED) {
-          const lockPosition = context.initialContentOffsetY ?? 0
+          const lockPosition = context.initialContentOffsetY ?? 0;
           // @ts-ignore
           scrollTo(scrollableRef, 0, lockPosition, false);
           scrollableContentOffsetY.value = lockPosition;
@@ -81,17 +112,24 @@ export const useScrollableInternal = () => {
         }
       },
       onEndDrag: ({ contentOffset: { y } }: NativeScrollEvent, context) => {
-        const {didStartAtMiddle}=context
-        const isDraggingDown = gestureTranslationY.value > 0
-        const isDraggingDownFromTop = (isDraggingDown && context.startedIndex === 2)
-        const secondHighestSnapPoint =
-          animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
-        const didDragBelowSecondSnapPoint = gestureTranslationY.value > secondHighestSnapPoint
-        if (didStartAtMiddle || (isDraggingDownFromTop && didDragBelowSecondSnapPoint)) {
-          return
+        const {
+          didStartAtMiddle,
+          didDragBelowSecondSnapPoint,
+          isDraggingDownFromTop,
+        } = getScrollMetadata({
+          context,
+          animatedSnapPoints,
+          gestureTranslationY,
+        });
+
+        if (
+          didStartAtMiddle ||
+          (isDraggingDownFromTop && didDragBelowSecondSnapPoint)
+        ) {
+          return;
         }
         if (animatedScrollableState.value === SCROLLABLE_STATE.LOCKED) {
-          const lockPosition = context.initialContentOffsetY ?? 0
+          const lockPosition = context.initialContentOffsetY ?? 0;
           // @ts-ignore
           scrollTo(scrollableRef, 0, lockPosition, false);
           scrollableContentOffsetY.value = lockPosition;
@@ -103,17 +141,24 @@ export const useScrollableInternal = () => {
         }
       },
       onMomentumEnd: ({ contentOffset: { y } }: NativeScrollEvent, context) => {
-        const isDraggingDown = gestureTranslationY.value > 0
-        const isDraggingDownFromTop = (isDraggingDown && context.startedIndex === 2)
-        const secondHighestSnapPoint =
-          animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
-        const didDragBelowSecondSnapPoint = gestureTranslationY.value > secondHighestSnapPoint
+        const {
+          didStartAtMiddle,
+          didDragBelowSecondSnapPoint,
+          isDraggingDownFromTop,
+        } = getScrollMetadata({
+          context,
+          animatedSnapPoints,
+          gestureTranslationY,
+        });
 
-        if (context.didStartAtMiddle || (isDraggingDownFromTop && didDragBelowSecondSnapPoint)) {
-          return
+        if (
+          didStartAtMiddle ||
+          (isDraggingDownFromTop && didDragBelowSecondSnapPoint)
+        ) {
+          return;
         }
         if (animatedScrollableState.value === SCROLLABLE_STATE.LOCKED) {
-          const lockPosition = context.initialContentOffsetY ?? 0
+          const lockPosition = context.initialContentOffsetY ?? 0;
           // @ts-ignore
           scrollTo(scrollableRef, 0, lockPosition, false);
           scrollableContentOffsetY.value = 0;

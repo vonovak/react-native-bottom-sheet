@@ -28,11 +28,8 @@ export function createBottomSheetScrollableComponent<T, P>(
     //#endregion
 
     //#region hooks
-    const {
-      scrollableRef,
-      handleScrollEvent,
-      handleSettingScrollable,
-    } = useScrollableInternal();
+    const { scrollableRef, handleScrollEvent, handleSettingScrollable } =
+      useScrollableInternal();
     const { enableContentPanningGesture, animatedFooterHeight } =
       useBottomSheetInternal();
     //#endregion

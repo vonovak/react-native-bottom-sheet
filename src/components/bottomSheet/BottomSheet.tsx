@@ -579,22 +579,25 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
     //#endregion
 
     //#region gesture interaction hooks
-    const [contentPanGestureHandler, contentPanGestureState, gestureTranslationY] =
-      useInteractivePanGestureHandler({
-        type: GESTURE.CONTENT,
-        enableOverDrag,
-        enablePanDownToClose,
-        overDragResistanceFactor,
-        keyboardState,
-        keyboardHeight,
-        keyboardBehavior,
-        animatedPosition,
-        animatedSnapPoints,
-        animatedContainerHeight,
-        isInTemporaryPosition,
-        scrollableContentOffsetY,
-        animateToPoint: animateToPosition,
-      });
+    const [
+      contentPanGestureHandler,
+      contentPanGestureState,
+      gestureTranslationY,
+    ] = useInteractivePanGestureHandler({
+      type: GESTURE.CONTENT,
+      enableOverDrag,
+      enablePanDownToClose,
+      overDragResistanceFactor,
+      keyboardState,
+      keyboardHeight,
+      keyboardBehavior,
+      animatedPosition,
+      animatedSnapPoints,
+      animatedContainerHeight,
+      isInTemporaryPosition,
+      scrollableContentOffsetY,
+      animateToPoint: animateToPosition,
+    });
     const [handlePanGestureHandler, handlePanGestureState] =
       useInteractivePanGestureHandler({
         type: GESTURE.HANDLE,
@@ -844,7 +847,7 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
         setScrollableRef: handleSettingScrollableRef,
         removeScrollableRef,
         gestureTranslationY,
-        animatedSnapPoints
+        animatedSnapPoints,
       }),
       [
         animatedIndex,
@@ -873,7 +876,7 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
         _providedFailOffsetX,
         _providedFailOffsetY,
         gestureTranslationY,
-        animatedSnapPoints
+        animatedSnapPoints,
       ]
     );
     const externalContextVariables = useMemo(

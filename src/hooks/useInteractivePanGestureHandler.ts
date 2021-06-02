@@ -1,8 +1,22 @@
-import { Keyboard, Platform } from "react-native";
-import Animated, { cancelAnimation, runOnJS, useAnimatedGestureHandler, useSharedValue } from "react-native-reanimated";
-import { PanGestureHandlerGestureEvent, State } from "react-native-gesture-handler";
-import { clamp, snapPoint } from "react-native-redash";
-import { GESTURE, KEYBOARD_BEHAVIOR, KEYBOARD_DISMISS_THRESHOLD, KEYBOARD_STATE, WINDOW_HEIGHT } from "../constants";
+import { Keyboard, Platform } from 'react-native';
+import Animated, {
+  cancelAnimation,
+  runOnJS,
+  useAnimatedGestureHandler,
+  useSharedValue,
+} from 'react-native-reanimated';
+import {
+  PanGestureHandlerGestureEvent,
+  State,
+} from 'react-native-gesture-handler';
+import { clamp, snapPoint } from 'react-native-redash';
+import {
+  GESTURE,
+  KEYBOARD_BEHAVIOR,
+  KEYBOARD_DISMISS_THRESHOLD,
+  KEYBOARD_STATE,
+  WINDOW_HEIGHT,
+} from '../constants';
 
 export interface useInteractivePanGestureHandlerConfigs {
   type: GESTURE;
@@ -129,7 +143,7 @@ export const useInteractivePanGestureHandler = ({
        * this will insure locking sheet position when user is scrolling the scrollable until,
        * they reach to the top of the scrollable.
        */
-      const isDraggingDown = translationY > 0
+      const isDraggingDown = translationY > 0;
       const accumulatedDraggedPosition =
         draggedPosition + negativeScrollableContentOffset;
 
@@ -139,42 +153,48 @@ export const useInteractivePanGestureHandler = ({
        */
       const secondHighestSnapPoint =
         animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
-      const isDraggingDownFromTop = (isDraggingDown && context.startPosition === 0)
-      const isDraggingDownFromMiddle = (isDraggingDown && context.startPosition === secondHighestSnapPoint)
-      const isDraggingDownFromBetweenTopAndMiddle = (isDraggingDown && context.startPosition <= secondHighestSnapPoint && context.startPosition > 0)
-
+      const isDraggingDownFromTop =
+        isDraggingDown && context.startPosition === 0;
+      const isDraggingDownFromMiddle =
+        isDraggingDown && context.startPosition === secondHighestSnapPoint;
+      const isDraggingDownFromBetweenTopAndMiddle =
+        isDraggingDown &&
+        context.startPosition <= secondHighestSnapPoint &&
+        context.startPosition > 0;
 
       // console.log('context.startPosition', isDraggingUpFromMiddle, context.startPosition)
-      const clampedPosition = (()=>{
+      const clampedPosition = (() => {
         if (type === GESTURE.CONTENT) {
-          const clampSource = (()=>{
-            if (isDraggingDownFromMiddle && context.isScrollablePositionLocked === false) {
+          const clampSource = (() => {
+            if (
+              isDraggingDownFromMiddle &&
+              context.isScrollablePositionLocked === false
+            ) {
               // prevents handle jump when you start from middle and scroll up and down in one long drag
-              return accumulatedDraggedPosition
+              return accumulatedDraggedPosition;
             }
             if (isDraggingDownFromTop) {
-              const res = Math.min(draggedPosition, secondHighestSnapPoint)
-              return res
+              const res = Math.min(draggedPosition, secondHighestSnapPoint);
+              return res;
             } else if (isDraggingDownFromMiddle) {
-              return secondHighestSnapPoint
+              return secondHighestSnapPoint;
             } else if (isDraggingDownFromBetweenTopAndMiddle) {
-              return Math.min(accumulatedDraggedPosition, secondHighestSnapPoint)
+              return Math.min(
+                accumulatedDraggedPosition,
+                secondHighestSnapPoint
+              );
             }
-            return accumulatedDraggedPosition
-          })()
-          return clamp(
-            clampSource,
-            highestSnapPoint,
-            lowestSnapPoint
-          )
+            return accumulatedDraggedPosition;
+          })();
+          return clamp(clampSource, highestSnapPoint, lowestSnapPoint);
         } else {
           return clamp(
             accumulatedDraggedPosition,
             highestSnapPoint,
             lowestSnapPoint
-          )
+          );
         }
-      })()
+      })();
 
       /**
        * if scrollable position is locked and the animated position
@@ -184,7 +204,7 @@ export const useInteractivePanGestureHandler = ({
       if (
         context.isScrollablePositionLocked &&
         type === GESTURE.CONTENT &&
-        (animatedPosition.value === highestSnapPoint)
+        animatedPosition.value === highestSnapPoint
       ) {
         context.isScrollablePositionLocked = false;
       }
@@ -221,24 +241,6 @@ export const useInteractivePanGestureHandler = ({
           const resistedPosition =
             lowestSnapPoint +
             Math.sqrt(1 + (draggedPosition - lowestSnapPoint)) *
-              overDragResistanceFactor;
-          animatedPosition.value = resistedPosition;
-          return;
-        }
-
-        if (
-          false &&
-          type === GESTURE.CONTENT &&
-          draggedPosition + negativeScrollableContentOffset > lowestSnapPoint
-        ) {
-          const resistedPosition =
-            lowestSnapPoint +
-            Math.sqrt(
-              1 +
-                (draggedPosition +
-                  negativeScrollableContentOffset -
-                  lowestSnapPoint)
-            ) *
               overDragResistanceFactor;
           animatedPosition.value = resistedPosition;
           return;
@@ -294,21 +296,23 @@ export const useInteractivePanGestureHandler = ({
       /**
        * calculate the destination point, using redash.
        */
-      const isDraggingDown = translationY > 0
+      const isDraggingDown = translationY > 0;
 
       const destinationPoint = (() => {
         const endingSnapPoint = snapPoint(
           gestureTranslationY.value + context.startPosition,
           gestureVelocityY.value,
           snapPoints
-        )
+        );
         if (type === GESTURE.HANDLE) {
-          return endingSnapPoint
+          return endingSnapPoint;
         }
         const secondHighestSnapPoint =
           animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
-        return isDraggingDown ? Math.min(secondHighestSnapPoint, endingSnapPoint) : endingSnapPoint
-      })()
+        return isDraggingDown
+          ? Math.min(secondHighestSnapPoint, endingSnapPoint)
+          : endingSnapPoint;
+      })();
 
       /**
        * if destination point is the same as the current position,
