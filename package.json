@@ -1,8 +1,8 @@
 {
-  "name": "@gorhom/bottom-sheet",
+  "name": "@gorhom/bottom-sheet-custom-fork",
   "version": "4.0.0-alpha.8",
   "description": "A performant interactive bottom sheet with fully configurable options 🚀",
-  "main": "lib/commonjs/index",
+  "main": "src/index.ts",
   "module": "lib/module/index",
   "types": "lib/typescript/index.d.ts",
   "react-native": "src/index.ts",
@@ -58,19 +58,11 @@
     "husky": "^4.3.8",
     "lint-staged": "^11.0.0",
     "prettier": "^2.3.0",
-    "react": "~16.9.0",
-    "react-native": "^0.62.2",
     "react-native-builder-bob": "^0.18.1",
-    "react-native-gesture-handler": "^1.10.3",
-    "react-native-reanimated": "^2.1.0",
     "release-it": "^14.6.2",
     "typescript": "^4.2.4"
   },
   "peerDependencies": {
-    "react": "*",
-    "react-native": "*",
-    "react-native-gesture-handler": ">=1.10.1",
-    "react-native-reanimated": ">=2.1.0"
   },
   "react-native-builder-bob": {
     "source": "src",
