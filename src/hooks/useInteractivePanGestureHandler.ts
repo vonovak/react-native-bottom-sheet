@@ -152,13 +152,14 @@ export const useInteractivePanGestureHandler = ({
        */
       const secondHighestSnapPoint =
         animatedSnapPoints.value[animatedSnapPoints.value.length - 2];
-      const isDraggingFromBottom = context.startPosition !== 0 && context.startPosition !== secondHighestSnapPoint
+      const isDraggingFromBottom =
+        context.startPosition > secondHighestSnapPoint;
 
       const clampedPosition = (() => {
         if (type === GESTURE.CONTENT) {
           const clampSource = (() => {
             if (isDraggingFromBottom) {
-              return accumulatedDraggedPosition
+              return accumulatedDraggedPosition;
             }
             return Math.min(draggedPosition, secondHighestSnapPoint);
           })();
