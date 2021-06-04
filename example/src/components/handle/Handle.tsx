@@ -113,8 +113,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'white',
     paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#fff',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#fff',
   },
   indicator: {
     position: 'absolute',

@@ -178,6 +178,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   container: {
+    backgroundColor: 'black',
     overflow: 'visible',
     flex: 1,
   },
