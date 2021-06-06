@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import BottomSheet, { useBottomSheetSpringConfigs } from '@gorhom/bottom-sheet';
 import ContactList from '../../components/contactList';
 import Button from '../../components/button';
+import CustomHandle from '../../components/customHandle';
 
 interface ExampleScreenProps {
   title: string;
@@ -106,6 +107,14 @@ const createExampleScreen = ({ type, count = 25 }: ExampleScreenProps) =>
           enableHandlePanningGesture={enableHandlePanningGesture}
           onChange={handleSheetChange}
           onAnimate={handleSheetAnimate}
+          handleComponent={props => (
+            <CustomHandle
+              {...props}
+              style={{ backgroundColor: 'black' }}
+              title={'hi'}
+            />
+          )}
+          style={{ backgroundColor: 'black' }}
         >
           <ContactList key={`${type}.list`} type={type} count={count} />
         </BottomSheet>
